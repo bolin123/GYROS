@@ -1,30 +1,54 @@
 #include "HalCommon.h"
-#include "HalClk.h"
-#include "HalWdt.h"
 #include "HalGPIO.h"
 #include "HalTimer.h"
 #include "HalUart.h"
 #include "HalSpi.h"
-#include "HalFlash.h"
 #include "HalWait.h"
+#include "CC1101.h"
 
-static uint32_t volatile g_sysTimerCount;
+#define HAL_DEBUG_UART_PORT 1 //uart2
+
+static uint32_t volatile g_timerCount = 0;
 static bool g_intEnable = true;
 
 //redirect "printf()"
 int fputc(int ch, FILE *f)
 {
-	HalUartWrite(HAL_UART_0, (const uint8_t *)&ch, 1);
+	HalUartWrite(HAL_DEBUG_UART_PORT, (const uint8_t *)&ch, 1);
 	return ch;
+}
+
+static void periphClockInit(void)
+{
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
+    //RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+    //RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+    //RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM6, ENABLE);
+    //RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 }
 
 static void debugUartInit(void)
 {
     HalUartConfig_t uartConfig;
-    uartConfig.baudRate = 115200;
-    uartConfig.parity = PARITY_NONE;
-    uartConfig.recvHandler = NULL;
-    HalUartInit(HAL_UART_0, &uartConfig);
+    uartConfig.baudrate = 115200;
+    uartConfig.parity = 0;
+    uartConfig.flowControl = 0;
+    uartConfig.wordLength = USART_WordLength_8b;
+    uartConfig.recvCb = NULL;
+    HalUartConfig(HAL_DEBUG_UART_PORT, &uartConfig);
+}
+
+void HalTimerPast1ms(void)
+{
+    g_timerCount++;
 }
 
 bool HalInterruptsGetEnable(void)
@@ -50,7 +74,6 @@ void HalReboot(void)
     static bool reboot = false;
     if(!reboot)
     {
-        SysLog("");
         reboot = true;
 		//__set_FAULTMASK(1);
 		NVIC_SystemReset();
@@ -59,33 +82,30 @@ void HalReboot(void)
 
 uint32_t HalRunningTime(void)
 {
-    return g_sysTimerCount;
-}
-
-
-void HalTimerPassMs(void)
-{
-	g_sysTimerCount++;
+    return g_timerCount;
 }
 
 void HalInitialize(void)
 {
-	HalClkInit();
+	periphClockInit();
     HalTimerInitialize();
     HalGPIOInitialize();
     HalUartInitialize();
     HalSpiInitialize();
-    HalFlashInitialize();
     //HalIwdtInitialize();
     debugUartInit();
+    printf("CC1101Initialize\n");
+    CC1101Initialize();
+
+    printf("cc1101 id = %d\n", CC1101ReadID());
 }
 
-ROM_FUNC void HalPoll(void)
+void HalPoll(void)
 {
     HalGPIOPoll();
     HalSpiPoll();
-    HalFlashPoll();
     HalUartPoll();
     //HalIwdtFeed();
+    CC1101Poll();
 }
 

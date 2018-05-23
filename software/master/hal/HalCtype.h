@@ -4,7 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "stm32f0xx.h"
+#include "stm32f10x.h"
+#include "HalConfig.h"
 
 #undef bool
 #define bool unsigned char
@@ -20,6 +21,10 @@
 #define int16_t signed short
 #undef int32_t
 #define int32_t signed int
+#undef uint64_t
+#define uint64_t unsigned long long int
+#undef int64_t
+#define int64_t long long int
 
 #undef true
 #define true (1)
@@ -30,12 +35,24 @@
 #define NULL ((void *)0)
 #endif
 
-#ifndef ROM_FUNC
-#define ROM_FUNC
+union format_change
+{
+	float f;
+	int 	d;
+	struct
+	{
+		uint16_t word1;
+		uint16_t word2;
+	}w;
+	struct
+	{
+		uint8_t byte1;
+		uint8_t byte2;
+		uint8_t byte3;
+		uint8_t byte4;
+	}b;
+};
+
+
 #endif
 
-#define HalPrintf(...)  printf(__VA_ARGS__)
-#define SysPrintf  HalPrintf
-#define SysLog(...) {SysPrintf("%s:",__FUNCTION__); SysPrintf(__VA_ARGS__); SysPrintf("\n");}
-
-#endif

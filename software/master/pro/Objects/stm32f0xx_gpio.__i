@@ -1,0 +1,8 @@
+--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I..\lib\STM32F0xx_StdPeriph_Driver\inc -I..\hal -I..\app
+-I E:\project\biao\software\master\pro\RTE
+-I E:\project\biao\software\master\pro\RTE\Device\STM32F103C8
+-I D:\Keil_v5\ARM\PACK\ARM\CMSIS\4.2.0\CMSIS\Include
+-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0
+-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include
+-D__UVISION_VERSION="513" -D_RTE_ -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER -DSTM32F10X_MD
+-o .\objects\stm32f0xx_gpio.o --omf_browse .\objects\stm32f0xx_gpio.crf --depend .\objects\stm32f0xx_gpio.d "..\lib\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_gpio.c"

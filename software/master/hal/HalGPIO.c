@@ -1,146 +1,80 @@
 #include "HalGPIO.h"
 
-#define IO_MAX   48
+#define IO_NUM_MAX 0x5f
 
-typedef struct halGpio{
-	GPIO_TypeDef *port;
-	uint16_t pin;
-	uint32_t rcc; //¨º¡À?¨®
-	uint8_t  intPort;
-	uint8_t  intPin;
-	uint32_t extiLine;
-	
-}HALGPIO;
-
-
-static void numToGPIO(HalGPIO_t num, HALGPIO *gpio)
+static GPIO_TypeDef *ioToPort(uint8_t io)
 {
-	HalGPIO_t port;
-	port           = (num>>4)&0x0f;
-	gpio->pin      = (uint16_t)(1<<(num&0x0f));  //eg. GPIO_Pin_11=(uint16_t)0x0800
-	gpio->extiLine = (uint32_t)(1<<(num&0x0f));  //eg. EXTI_Line3 = (uint32_t)0x00008
-	gpio->intPin   = (uint8_t)(num&0x0f);        //eg. GPIO_PinSource1=(uint8_t)0x01
-	switch(port)
-	{
-		case 0:
-			gpio->port = GPIOA;
-			gpio->rcc  = RCC_AHBPeriph_GPIOA;
-//			gpio->intPort = GPIO_PortSourceGPIOA;
-			break;
-		case 1:
-			gpio->port = GPIOB;
-			gpio->rcc  = RCC_AHBPeriph_GPIOB;
-//			gpio->intPort = GPIO_PortSourceGPIOB;
-			break;
-		case 2:
-			gpio->port = GPIOC;
-			gpio->rcc  = RCC_AHBPeriph_GPIOC;
-//			gpio->intPort = GPIO_PortSourceGPIOC;
-			break;
-		case 3:
-			gpio->port = GPIOD;
-			gpio->rcc  = RCC_AHBPeriph_GPIOD;
-//			gpio->intPort = GPIO_PortSourceGPIOD;
-			break;
-		case 4:
-			gpio->port = GPIOE;
-			gpio->rcc  = RCC_AHBPeriph_GPIOE;
-//			gpio->intPort = GPIO_PortSourceGPIOE;
-			break;
-		case 5:
-			gpio->port = GPIOF;
-			gpio->rcc  = RCC_AHBPeriph_GPIOF;
-//			gpio->intPort = GPIO_PortSourceGPIOF;
-			break;
-		default:
-			break;
-	}
+    int n = io >> 4;
+
+    switch(n)
+    {
+    case 0x0:
+        return GPIOA;
+
+    case 0x1:
+        return GPIOB;
+
+    case 0x2:
+        return GPIOC;
+
+    case 0x3:
+        return GPIOD;
+
+    case 0x4:
+        return GPIOE;
+
+    case 0x5:
+        return GPIOF;
+
+    default:
+        return GPIOG;
+    }
 }
 
-
-
-void HalGPIOPoll(void)
+static uint16_t ioToPin(uint8_t io)
 {
-
+    int n = io & 0xf;
+    return (1 << n);
 }
 
-
-void HalGPIOSet(HalGPIO_t io, HalGPIOLevel_t value)
+uint8_t HalGPIOGetLevel(uint8_t io)
 {
-	HALGPIO gpio;
+    return GPIO_ReadInputDataBit(ioToPort(io), ioToPin(io));
+}
 
-    if(io > IO_MAX)
+void HalGPIOSetLevel(uint8_t io, uint8_t level)
+{
+    GPIO_WriteBit(ioToPort(io), ioToPin(io), level);
+}
+
+void HalGPIOConfig(uint8_t io, HalGPIODirect_t dir)
+{
+    GPIO_InitTypeDef GPIO_InitStruct;
+
+    if(io > IO_NUM_MAX)
+    {
         return;
-	
-	numToGPIO(io, &gpio);
-	GPIO_WriteBit(gpio.port, gpio.pin, (BitAction)value);
-}
-
-#define GPIO_UART_PIN_NUM   12
-
-void HalGpioUartTxSet(uint8_t value)
-{
-	HALGPIO gpio;
-	uint16_t regVal;
-
-	regVal = GPIO_ReadOutputData(gpio.port);
-	if(value)
-	{
-		regVal |= 0x0001<<GPIO_UART_PIN_NUM;
-	}else{
-		regVal &= ~(0x0001<<GPIO_UART_PIN_NUM);
-	}
-	GPIO_Write(GPIOB, regVal);
-}
-
-HalGPIOLevel_t HalGPIOGet(HalGPIO_t io)
-{
-	HALGPIO gpio;
+    }
     
-    if(io > IO_MAX)
-        return 0;
+    GPIO_InitStruct.GPIO_Pin = ioToPin(io);
+    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+    if(dir == HAL_IO_OUTPUT)
+    {
+        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
+    }
+    else
+    {
+        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPU;
+    }
     
-	numToGPIO(io, &gpio);
-
-	return (HalGPIOLevel_t)GPIO_ReadInputDataBit(gpio.port, gpio.pin);
+    GPIO_Init(ioToPort(io), &GPIO_InitStruct);
 }
-
-void HalGPIOInit(HalGPIO_t num, const HalGPIODir_t dir)
-{
-	HALGPIO gpio;
-	GPIO_InitTypeDef gpioStruct;
-
-    if(num > IO_MAX)
-        return;
-	
-	numToGPIO(num, &gpio);
-	
-	gpioStruct.GPIO_Pin   = gpio.pin;
-	gpioStruct.GPIO_Speed = GPIO_Speed_50MHz;
-    
-	switch(dir)
-	{
-		
-		case HAL_GPIO_DIR_IN:
-			gpioStruct.GPIO_Mode  = GPIO_Mode_IN;
-			break;
-    	case HAL_GPIO_DIR_OUT:
-			gpioStruct.GPIO_Mode  = GPIO_Mode_OUT;
-            gpioStruct.GPIO_PuPd = GPIO_PuPd_UP;
-            gpioStruct.GPIO_OType = GPIO_OType_PP;
-			break;
-        default: //interrupt
-			gpioStruct.GPIO_Mode  = GPIO_Mode_AF;
-			break;
-	}
-	
-	GPIO_Init(gpio.port, &gpioStruct);
-}
-
 
 void HalGPIOInitialize(void)
 {
-
 }
 
+void HalGPIOPoll(void)
+{
+}
 

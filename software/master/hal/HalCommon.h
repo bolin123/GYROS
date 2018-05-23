@@ -18,9 +18,6 @@ void HalInterruptsSetEnable(bool enable);
  */
 bool HalInterruptsGetEnable(void);
 
-/** 关闭日志 */
-void HalDisableLog(void);
-
 /** 重启 */
 void HalReboot(void);
 

@@ -2,58 +2,52 @@
 #define HAL_UART_H
 
 #include "HalCtype.h"
-
-//Uart
+#include "stm32f10x_usart.h"
+#if 0
 typedef enum
 {
-    HAL_UART_0, //sim800c
-    HAL_UART_1, //com
-    HAL_UART_2, //debug
+    HAL_UART_PORT_1 = 0,
+    HAL_UART_PORT_2,
+    HAL_UART_PORT_3,
+    HAL_UART_PORT_SIM,
     HAL_UART_COUNT,
-    HAL_UART_INVALID = 0xff,
-}HalUart_t;
+}HalUartPort_t;
+#endif
+typedef void (* HalUartDataRecv_cb)(uint8_t *data, uint16_t len);
+typedef void (* HalUartDmaRecv_cb)(uint16_t count);
 
-typedef enum
-{
-    PARITY_NONE = 0,
-    PARITY_EVEN,
-    PARITY_ODD,
-}HalUartParity_t;
-
-//数据接收回调
-typedef void (*HalUartRecvHandler_t)(HalUart_t uart, const uint8_t *data, uint16_t len);
-
-//串口配置参数
 typedef struct
 {
-    uint32_t baudRate;
-    HalUartParity_t parity;
-    HalUartRecvHandler_t recvHandler;
+/*
+    USART_Parity_No  
+    USART_Parity_Even
+    USART_Parity_Odd 
+*/
+    uint16_t parity;
+/*
+    USART_WordLength_8b
+    USART_WordLength_9b
+*/
+    uint16_t wordLength;
+/*
+    USART_HardwareFlowControl_None   
+    USART_HardwareFlowControl_RTS    
+    USART_HardwareFlowControl_CTS    
+    USART_HardwareFlowControl_RTS_CTS
+*/
+    uint16_t flowControl;
+
+    uint32_t baudrate;
+    HalUartDataRecv_cb recvCb;
+    
 }HalUartConfig_t;
 
+//void HalUartDmaInit(uint8_t *buff, HalUartDmaRecv_cb handle);
+void HalUartDmaInit(uint8_t uart, HalUartConfig_t *config, uint8_t *buff, HalUartDmaRecv_cb handle);
 void HalUartInitialize(void);
 void HalUartPoll(void);
+void HalUartConfig(uint8_t uart, HalUartConfig_t *config);
+void HalUartWrite(uint8_t uart, const uint8_t *data, uint16_t len);
 
-void HalUartRecvData(HalUart_t uart, const uint8_t *data, uint16_t len);
-
-/**
- *  串口配置
- *  @param cfg 配置参数
- */
-void HalUartInit(HalUart_t uart, const HalUartConfig_t *cfg);
-
-/**
- *  串口写入
- *  @param uart  指定串口
- *  @param data 数据
- *  @param len 数据长度
- *  @return 成功返回数据长度失败返回0
- */
-uint16_t HalUartWrite(HalUart_t uart, const void *data, uint16_t len);
-
-#endif // HAL_UART_H
-
-
-
-
+#endif
 

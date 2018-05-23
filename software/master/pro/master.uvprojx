@@ -14,8 +14,6 @@
         <TargetCommonOption>
           <Device>STM32F103C8</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F1xx_DFP.2.1.0</PackID>
-          <PackURL>http://www.keil.com/pack/</PackURL>
           <Cpu>IROM(0x08000000,0x10000) IRAM(0x20000000,0x5000) CPUTYPE("Cortex-M3") CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
@@ -145,9 +143,10 @@
             <RestoreToolbox>1</RestoreToolbox>
             <RestoreTracepoints>1</RestoreTracepoints>
             <RestoreSysVw>1</RestoreSysVw>
+            <UsePdscDebugDescription>1</UsePdscDebugDescription>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>1</TargetSelection>
+          <TargetSelection>11</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -161,7 +160,7 @@
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
             <InitializationFile></InitializationFile>
-            <Driver>BIN\UL2CM3.DLL</Driver>
+            <Driver>STLink\ST-LINKIII-KEIL_SWO.dll</Driver>
           </TargetDlls>
         </DebugOption>
         <Utilities>
@@ -170,12 +169,12 @@
             <UseExternalTool>0</UseExternalTool>
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
-            <Capability>0</Capability>
-            <DriverSelection>-1</DriverSelection>
+            <Capability>1</Capability>
+            <DriverSelection>4096</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2CM3.DLL</Flash2>
-          <Flash3></Flash3>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -224,7 +223,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>0</useUlib>
+            <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <RoSelD>3</RoSelD>
@@ -359,13 +358,13 @@
             <wLevel>2</wLevel>
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
-            <uC99>0</uC99>
+            <uC99>1</uC99>
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER, STM32F10X_MD</Define>
               <Undefine></Undefine>
-              <IncludePath></IncludePath>
+              <IncludePath>..\hal;..\app;..\lib\inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -407,15 +406,22 @@
       <Groups>
         <Group>
           <GroupName>app</GroupName>
+          <Files>
+            <File>
+              <FileName>APP.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app\APP.c</FilePath>
+            </File>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app\main.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>hal</GroupName>
           <Files>
-            <File>
-              <FileName>HalClk.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\hal\HalClk.c</FilePath>
-            </File>
             <File>
               <FileName>HalCommon.c</FileName>
               <FileType>1</FileType>
@@ -447,9 +453,9 @@
               <FilePath>..\hal\HalWait.c</FilePath>
             </File>
             <File>
-              <FileName>HalWdt.c</FileName>
+              <FileName>CC1101.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\hal\HalWdt.c</FilePath>
+              <FilePath>..\hal\CC1101.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -457,54 +463,49 @@
           <GroupName>lib</GroupName>
           <Files>
             <File>
-              <FileName>stm32f0xx_usart.c</FileName>
+              <FileName>misc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\lib\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_usart.c</FilePath>
+              <FilePath>..\lib\src\misc.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f0xx_tim.c</FileName>
+              <FileName>stm32f10x_exti.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\lib\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_tim.c</FilePath>
+              <FilePath>..\lib\src\stm32f10x_exti.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f0xx_spi.c</FileName>
+              <FileName>stm32f10x_gpio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\lib\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_spi.c</FilePath>
+              <FilePath>..\lib\src\stm32f10x_gpio.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f0xx_rcc.c</FileName>
+              <FileName>stm32f10x_iwdg.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\lib\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_rcc.c</FilePath>
+              <FilePath>..\lib\src\stm32f10x_iwdg.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f0xx_misc.c</FileName>
+              <FileName>stm32f10x_rcc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\lib\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_misc.c</FilePath>
+              <FilePath>..\lib\src\stm32f10x_rcc.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f0xx_i2c.c</FileName>
+              <FileName>stm32f10x_spi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\lib\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_i2c.c</FilePath>
+              <FilePath>..\lib\src\stm32f10x_spi.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f0xx_iwdg.c</FileName>
+              <FileName>stm32f10x_tim.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\lib\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_iwdg.c</FilePath>
+              <FilePath>..\lib\src\stm32f10x_tim.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f0xx_gpio.c</FileName>
+              <FileName>stm32f10x_usart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\lib\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_gpio.c</FilePath>
+              <FilePath>..\lib\src\stm32f10x_usart.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f0xx_flash.c</FileName>
+              <FileName>stm32f10x_dma.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\lib\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_flash.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f0xx_exti.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\lib\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_exti.c</FilePath>
+              <FilePath>..\lib\src\stm32f10x_dma.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -513,6 +514,23 @@
         </Group>
         <Group>
           <GroupName>::Device</GroupName>
+          <Files>
+            <File>
+              <FileName>RTE_Device.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>RTE\Device\STM32F103C8\RTE_Device.h</FilePath>
+            </File>
+            <File>
+              <FileName>startup_stm32f10x_md.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>RTE\Device\STM32F103C8\startup_stm32f10x_md.s</FilePath>
+            </File>
+            <File>
+              <FileName>system_stm32f10x.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>RTE\Device\STM32F103C8\system_stm32f10x.c</FilePath>
+            </File>
+          </Files>
         </Group>
       </Groups>
     </Target>
@@ -520,9 +538,6 @@
 
   <RTE>
     <packages>
-      <filter>
-        <targetInfos/>
-      </filter>
       <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="4.2.0">
         <targetInfos>
           <targetInfo name="master" versionMatchMode="fixed"/>
