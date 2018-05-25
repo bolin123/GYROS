@@ -85,6 +85,24 @@ uint32_t HalRunningTime(void)
     return g_timerCount;
 }
 
+static void cc1101DataHandle(uint8_t *data, uint16_t len)
+{
+    uint16_t xyz[3];
+
+    HalGPIOSetLevel(0x01, !HalGPIOGetLevel(0x01));
+    memcpy((uint8_t *)xyz, data, sizeof(xyz));
+
+    printf("x=%d, y=%d, z=%d\n", xyz[0], xyz[1], xyz[2]);
+}
+
+static void ledConfig(void)
+{
+    HalGPIOConfig(0x00, HAL_IO_OUTPUT);
+    HalGPIOConfig(0x01, HAL_IO_OUTPUT);
+    HalGPIOSetLevel(0x00, 0);
+    HalGPIOSetLevel(0x01, 1);
+}
+
 void HalInitialize(void)
 {
 	periphClockInit();
@@ -95,7 +113,8 @@ void HalInitialize(void)
     //HalIwdtInitialize();
     debugUartInit();
     printf("CC1101Initialize\n");
-    CC1101Initialize();
+    CC1101Initialize(cc1101DataHandle);
+    ledConfig();
 
     printf("cc1101 id = %d\n", CC1101ReadID());
 }

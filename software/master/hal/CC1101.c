@@ -2,6 +2,7 @@
 #include "CC1101Regs.h"
 #include "HalSpi.h"
 #include "HalGPIO.h"
+#include "stm32f10x_exti.h"
 
 #define WRITE_BURST     	0x40						//连续写入
 #define READ_SINGLE     	0x80						//读
@@ -9,6 +10,9 @@
 #define BYTES_IN_RXFIFO     0x7F  						//接收缓冲区的有效字节数
 #define CRC_OK              0x80 						//CRC校验通过位标志
 
+#define MARC_STATE_IDLE                   0x01
+#define MARC_STATE_RX                     0x0D
+#define MARC_STATE_TX                     0x13
 
 #define CC1101_CS_PIN  0x04
 #define CC1101_CLK_PIN 0x05
@@ -17,9 +21,13 @@
 #define CC1101_GOD0_PIN 0x10
 #define CC1101_GOD2_PIN 0x11
 
-
 #define CC1101_CS_ENABLE() HalGPIOSetLevel(CC1101_CS_PIN, HAL_GPIO_LEVEL_LOW)
 #define CC1101_CS_DISABLE() HalGPIOSetLevel(CC1101_CS_PIN, HAL_GPIO_LEVEL_HIGH)
+
+static uint8_t g_buff[128];
+static volatile uint8_t g_buffLen = 0;
+static volatile bool g_gotFrame = false;
+static CC1101Recv_cb g_recvCb = NULL;
 
 static void delay(int nCount)
 {
@@ -30,7 +38,7 @@ static void delay(int nCount)
     }
 }
 
-static uint8_t halSpiReadStatus(uint8_t addr) 
+static uint8_t halSpiReadStatus(uint8_t addr)
 {
     uint8_t value, temp;
 	temp = addr | READ_BURST;
@@ -65,35 +73,6 @@ static void halSpiReadBurstReg(uint8_t addr, uint8_t *buffer, uint8_t len)
     }
     CC1101_CS_DISABLE();
 }
-
-static uint8_t halRfReceivePacket(uint8_t *rxBuffer, uint8_t *length) 
-{
-    uint8_t status[2];
-    uint8_t packetLength;
-	 
-    if ((halSpiReadStatus(CCxxx0_RXBYTES) & BYTES_IN_RXFIFO)) 
-	{
-        packetLength = halSpiReadReg(CCxxx0_RXFIFO);
-        rxBuffer[0] = packetLength;//读出第一个字节，此字节为该帧数据长度
-        if(packetLength <= *length) 
-        {
-            halSpiReadBurstReg(CCxxx0_RXFIFO, rxBuffer+1, packetLength+2);
-            *length = packetLength;
-
-            halSpiStrobe(CCxxx0_SFRX);		
-            return 1;//(status[1] & CRC_OK);
-        }
-        else 
-        {
-            *length = packetLength;
-            halSpiStrobe(CCxxx0_SFRX);		//???????
-            return 0;
-        }
-    } 
- 	return 0;
-}
-
-
 
 static void halSpiWriteReg(uint8_t addr, uint8_t value)
 {
@@ -134,6 +113,33 @@ static void setRxMode(void)
     halSpiStrobe(CCxxx0_SRX);   //进入接收模式
 }
 
+static uint8_t halRfReceivePacket(uint8_t *rxBuffer, uint8_t *length)
+{
+    uint8_t status[2];
+    uint8_t packetLength;
+
+    if ((halSpiReadStatus(CCxxx0_RXBYTES) & BYTES_IN_RXFIFO))
+	{
+        packetLength = halSpiReadReg(CCxxx0_RXFIFO);
+        rxBuffer[0] = packetLength;//读出第一个字节，此字节为该帧数据长度
+        if(packetLength <= sizeof(g_buff))
+        {
+            halSpiReadBurstReg(CCxxx0_RXFIFO, rxBuffer+1, packetLength+2);
+            *length = packetLength;
+
+            halSpiStrobe(CCxxx0_SFRX);
+            return 1;//(status[1] & CRC_OK);
+        }
+        else
+        {
+            *length = packetLength;
+            halSpiStrobe(CCxxx0_SFRX);		//???????
+            return 0;
+        }
+    }
+ 	return 0;
+}
+
 uint8_t CC1101ReadID(void)
 {
     uint8_t id;
@@ -147,7 +153,13 @@ uint8_t CC1101ReadID(void)
 
 void CC1101SendData(uint8_t *data, uint16_t len)
 {
+    halSpiStrobe(CCxxx0_SIDLE);
+	while(halSpiReadStatus(CCxxx0_MARCSTATE) != MARC_STATE_IDLE);
+
+    halSpiStrobe(CCxxx0_SFRX);
     halSpiStrobe(CCxxx0_SFTX);
+
+    halSpiWriteReg(CCxxx0_TXFIFO, len);
     halSpiWriteBurstReg(CCxxx0_TXFIFO, data, len);
     halSpiStrobe(CCxxx0_STX);
 
@@ -212,7 +224,7 @@ static void regsConfig(void)
 static void pinExtiConfig(void)
 {
     NVIC_InitTypeDef   NVIC_InitStructure;
-	
+
     /* Enable and set EXTI3 Interrupt */
 	NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
@@ -221,40 +233,48 @@ static void pinExtiConfig(void)
 
     EXTI_InitTypeDef EXTI_InitStructure;
     /* Connect GDO0 EXTI Line to Button GPIO Pin */
-    GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource0);  
+    GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource0);
 
     /* Configure GDO0 EXTI line */
     EXTI_InitStructure.EXTI_Line = EXTI_Line0;
     EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;  
+    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
     EXTI_InitStructure.EXTI_LineCmd = ENABLE;
     EXTI_Init(&EXTI_InitStructure);
 }
 
-void CC1101Initialize(void)
+void CC1101Initialize(CC1101Recv_cb callback)
 {
     chipReset();
     regsConfig();
     pinExtiConfig();
+
+    g_recvCb = callback;
 }
 
 void CC1101Poll(void)
 {
+    if(g_gotFrame)
+    {
+        if(g_recvCb)
+        {
+            g_recvCb(&g_buff[1], g_buffLen);
+        }
+        g_gotFrame = false;
+    }
 }
 
 
 void EXTI0_IRQHandler(void)  /* Key 4 */
 {
-    uint8_t  leng = 20;
-    uint8_t i_state;
     if(EXTI_GetITStatus(EXTI_Line0) != RESET)
     {
         //SYS_EXIT_CRITICAL(i_state);
-        if (halRfReceivePacket(g_rx_buf, &leng)) // 读数据并判断正确与否
+        if(halRfReceivePacket(g_buff, &g_buffLen)) // 读数据并判断正确与否
         {
             halSpiStrobe(CCxxx0_SIDLE);    //CCxxx0_SIDLE	 0x36 //空闲状态
             halSpiStrobe(CCxxx0_SRX);
-            g_RFRecv = 1;
+            g_gotFrame = true;
         }
        // SYS_ENTER_CRITICAL(i_state);
         EXTI_ClearITPendingBit(EXTI_Line0);
