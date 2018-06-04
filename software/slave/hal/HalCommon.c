@@ -36,6 +36,35 @@ static void periphClockInit(void)
     //RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 }
 
+static uint8_t g_buff[8];
+static uint8_t g_xyz[6];
+
+static void poseDataRecv(uint8_t *data, uint16_t len)
+{
+    uint16_t i;
+    static uint8_t dCount = 0;
+
+    for(i = 0; i < len; i++)
+    {
+        g_buff[dCount++] = data[i];
+        if(dCount == 1)
+        {
+            if(data[i] != 0xAA)
+            {
+                dCount = 0;
+            }
+        }
+        else if(dCount == 8)
+        {
+            if(data[i] == 0x55)
+            {
+                memcpy(g_xyz, &g_buff[1], sizeof(g_xyz));
+            }
+            dCount = 0;
+        }
+    }
+}
+
 static void debugUartInit(void)
 {
     HalUartConfig_t uartConfig;
@@ -43,7 +72,7 @@ static void debugUartInit(void)
     uartConfig.parity = 0;
     uartConfig.flowControl = 0;
     uartConfig.wordLength = USART_WordLength_8b;
-    uartConfig.recvCb = NULL;
+    uartConfig.recvCb = poseDataRecv;
     HalUartConfig(HAL_DEBUG_UART_PORT, &uartConfig);
 }
 
@@ -103,8 +132,8 @@ void HalInitialize(void)
     debugUartInit();
     printf("CC1101Initialize\n");
     CC1101Initialize();
-    MPU6500Initialize();
-    ledConfig();
+//    MPU6500Initialize();
+//    ledConfig();
 
     printf("cc1101 id = %d\n", CC1101ReadID());
 }
@@ -112,13 +141,12 @@ void HalInitialize(void)
 static void testReadGyro(void)
 {
     static uint32_t lastTime = 0;
-    uint16_t xyz[3];
 
-    if(HalRunningTime() - lastTime > 1000)
+    if(HalRunningTime() > 10000 && HalRunningTime() - lastTime > 300)
     {
-        MPU6500GyroRead(xyz);
-        printf("x=%d, y=%d, z= %d\n", xyz[0], xyz[1], xyz[2]);
-        CC1101SendData((uint8_t *)xyz, sizeof(xyz));
+        HalInterruptsSetEnable(false);
+        CC1101SendData(g_xyz, sizeof(g_xyz));
+        HalInterruptsSetEnable(true);
         lastTime = HalRunningTime();
     }
 }

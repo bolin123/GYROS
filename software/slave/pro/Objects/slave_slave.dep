@@ -58,7 +58,7 @@ I (..\hal\CC1101Regs.h)(0x5B03D74F)
 I (..\hal\HalSpi.h)(0x586DE416)
 I (..\hal\HalGPIO.h)(0x5B077B35)
 I (..\lib\inc\stm32f10x_exti.h)(0x5B077B35)
-F (..\hal\HalCommon.c)(0x5B081757)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I..\hal -I..\app -I..\lib\inc-I E:\project\GYROS\software\slave\pro\RTE-I E:\project\GYROS\software\slave\pro\RTE\Device\STM32F103C8-I D:\Keil_v5\ARM\PACK\ARM\CMSIS\4.2.0\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include-D__UVISION_VERSION="513" -D_RTE_ -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER -DSTM32F10X_MD-o .\objects\halcommon.o --omf_browse .\objects\halcommon.crf --depend .\objects\halcommon.d)
+F (..\hal\HalCommon.c)(0x5B1136F7)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I..\hal -I..\app -I..\lib\inc-I E:\project\GYROS\software\slave\pro\RTE-I E:\project\GYROS\software\slave\pro\RTE\Device\STM32F103C8-I D:\Keil_v5\ARM\PACK\ARM\CMSIS\4.2.0\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include-D__UVISION_VERSION="513" -D_RTE_ -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER -DSTM32F10X_MD-o .\objects\halcommon.o --omf_browse .\objects\halcommon.crf --depend .\objects\halcommon.d)
 I (..\hal\HalCommon.h)(0x5B077B35)
 I (..\hal\HalCtype.h)(0x5B077B35)
 I (D:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5475F300)
@@ -82,7 +82,7 @@ I (..\hal\HalUart.h)(0x5B077B35)
 I (..\hal\HalSpi.h)(0x586DE416)
 I (..\hal\HalWait.h)(0x5B077B35)
 I (..\hal\CC1101.h)(0x5B08173A)
-I (..\hal\MPU6500.h)(0x5B080F5B)
+I (..\hal\MPU6500.h)(0x5B0A303A)
 F (..\hal\HalGPIO.c)(0x5B077B35)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I..\hal -I..\app -I..\lib\inc-I E:\project\GYROS\software\slave\pro\RTE-I E:\project\GYROS\software\slave\pro\RTE\Device\STM32F103C8-I D:\Keil_v5\ARM\PACK\ARM\CMSIS\4.2.0\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include-D__UVISION_VERSION="513" -D_RTE_ -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER -DSTM32F10X_MD-o .\objects\halgpio.o --omf_browse .\objects\halgpio.crf --depend .\objects\halgpio.d)
 I (..\hal\HalGPIO.h)(0x5B077B35)
 I (..\hal\HalCtype.h)(0x5B077B35)
@@ -153,7 +153,7 @@ I (..\lib\inc\stm32f10x_usart.h)(0x5B077B35)
 I (..\lib\inc\misc.h)(0x5B077B35)
 I (..\hal\HalConfig.h)(0x5B077B35)
 I (..\lib\inc\stm32f10x_dma.h)(0x5B077B35)
-F (..\hal\HalWait.c)(0x5B077B35)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I..\hal -I..\app -I..\lib\inc-I E:\project\GYROS\software\slave\pro\RTE-I E:\project\GYROS\software\slave\pro\RTE\Device\STM32F103C8-I D:\Keil_v5\ARM\PACK\ARM\CMSIS\4.2.0\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include-D__UVISION_VERSION="513" -D_RTE_ -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER -DSTM32F10X_MD-o .\objects\halwait.o --omf_browse .\objects\halwait.crf --depend .\objects\halwait.d)
+F (..\hal\HalWait.c)(0x5B0A303A)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I..\hal -I..\app -I..\lib\inc-I E:\project\GYROS\software\slave\pro\RTE-I E:\project\GYROS\software\slave\pro\RTE\Device\STM32F103C8-I D:\Keil_v5\ARM\PACK\ARM\CMSIS\4.2.0\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include-D__UVISION_VERSION="513" -D_RTE_ -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER -DSTM32F10X_MD-o .\objects\halwait.o --omf_browse .\objects\halwait.crf --depend .\objects\halwait.d)
 I (..\hal\HalWait.h)(0x5B077B35)
 I (..\hal\HalCtype.h)(0x5B077B35)
 I (D:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5475F300)
@@ -172,8 +172,8 @@ I (..\lib\inc\stm32f10x_usart.h)(0x5B077B35)
 I (..\lib\inc\misc.h)(0x5B077B35)
 I (..\hal\HalConfig.h)(0x5B077B35)
 I (..\lib\inc\stm32f10x_tim.h)(0x5B077B35)
-F (..\hal\MPU6500.c)(0x5B080E73)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I..\hal -I..\app -I..\lib\inc-I E:\project\GYROS\software\slave\pro\RTE-I E:\project\GYROS\software\slave\pro\RTE\Device\STM32F103C8-I D:\Keil_v5\ARM\PACK\ARM\CMSIS\4.2.0\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include-D__UVISION_VERSION="513" -D_RTE_ -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER -DSTM32F10X_MD-o .\objects\mpu6500.o --omf_browse .\objects\mpu6500.crf --depend .\objects\mpu6500.d)
-I (..\hal\MPU6500.h)(0x5B080F5B)
+F (..\hal\MPU6500.c)(0x5B0A303A)(--c99 -c --cpu Cortex-M3 -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I..\hal -I..\app -I..\lib\inc-I E:\project\GYROS\software\slave\pro\RTE-I E:\project\GYROS\software\slave\pro\RTE\Device\STM32F103C8-I D:\Keil_v5\ARM\PACK\ARM\CMSIS\4.2.0\CMSIS\Include-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0-I D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include-D__UVISION_VERSION="513" -D_RTE_ -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER -DSTM32F10X_MD-o .\objects\mpu6500.o --omf_browse .\objects\mpu6500.crf --depend .\objects\mpu6500.d)
+I (..\hal\MPU6500.h)(0x5B0A303A)
 I (..\hal\HalCtype.h)(0x5B077B35)
 I (D:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5475F300)
 I (D:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x5475F300)

@@ -1,0 +1,2 @@
+---- Product ID read as Matches (1 in 1 files) ----
+inv_mpu.c (hal\MPU6500\eMPL):            log_e("Product ID read as 0 indicates device is either "
