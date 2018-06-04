@@ -1,12 +1,12 @@
-#include "APP.h"
+#include "Sys.h"
 
 int main(void)
 {
-    APPInitialize();
+    SysInitialize();
 
     while(1)
     {
-        APPPoll();
+        SysPoll();
     }
 }
 

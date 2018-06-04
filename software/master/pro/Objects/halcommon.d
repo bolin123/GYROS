@@ -22,4 +22,5 @@
 .\objects\halcommon.o: ..\hal\HalUart.h
 .\objects\halcommon.o: ..\hal\HalSpi.h
 .\objects\halcommon.o: ..\hal\HalWait.h
+.\objects\halcommon.o: ..\hal\HalFlash.h
 .\objects\halcommon.o: ..\hal\CC1101.h

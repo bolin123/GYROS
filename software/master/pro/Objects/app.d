@@ -17,4 +17,12 @@
 .\objects\app.o: ..\lib\inc\stm32f10x_usart.h
 .\objects\app.o: ..\lib\inc\misc.h
 .\objects\app.o: ..\hal\HalConfig.h
+.\objects\app.o: ..\sys\Sys.h
 .\objects\app.o: ..\hal\HalCommon.h
+.\objects\app.o: ..\hal\HalGPIO.h
+.\objects\app.o: ..\hal\HalTimer.h
+.\objects\app.o: ..\hal\HalUart.h
+.\objects\app.o: ..\hal\HalSpi.h
+.\objects\app.o: ..\hal\HalWait.h
+.\objects\app.o: ..\hal\HalFlash.h
+.\objects\app.o: ..\app\SysButton.h

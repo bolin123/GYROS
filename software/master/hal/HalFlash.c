@@ -1,4 +1,5 @@
 #include "HalFlash.h"
+#include "stm32f10x_flash.h"
 
 #define FLASH_CACHE_LEN  256
 
@@ -12,13 +13,13 @@ static void flashWrite(uint32_t addr, uint8_t *buf, uint16_t len);
 static void flashPageErase(uint32_t addr);
 
 
-ROM_FUNC void HalFlashInitialize(void)
+void HalFlashInitialize(void)
 {
 
 }
 
 
-ROM_FUNC void HalFlashPoll(void)
+void HalFlashPoll(void)
 {
 
 }
@@ -26,6 +27,7 @@ ROM_FUNC void HalFlashPoll(void)
 
 void HalFlashWrite(uint32_t addr, const void *data, uint32_t len)
 {
+#if 1
 	unsigned char secBuf[FLASH_CACHE_LEN];
     unsigned char count=0, i=0;
     uint16_t tailLen=0;
@@ -36,14 +38,14 @@ void HalFlashWrite(uint32_t addr, const void *data, uint32_t len)
     {
         count = len/FLASH_CACHE_LEN;
     }
-    tailLen = len%FLASH_CACHE_LEN; 
+    tailLen = len%FLASH_CACHE_LEN;
 
     for(i = 0; i < count; i++)
     {
         memcpy(secBuf, dataByte+i*FLASH_CACHE_LEN, FLASH_CACHE_LEN);
         flashWrite(startAddr+i*FLASH_CACHE_LEN, secBuf, FLASH_CACHE_LEN);
     }
-    
+
     //last data
     if(tailLen)
     {
@@ -51,11 +53,11 @@ void HalFlashWrite(uint32_t addr, const void *data, uint32_t len)
         memcpy(secBuf, dataByte+i*FLASH_CACHE_LEN, tailLen);
         flashWrite(startAddr+i*FLASH_CACHE_LEN, secBuf, FLASH_CACHE_LEN);
     }
-
+#endif
 }
 
 void HalFlashErase(uint32_t addr)
-{    
+{
     flashPageErase(addr);
 }
 
@@ -65,18 +67,18 @@ void HalFlashRead(uint32_t addr, void *buf, uint32_t bufSize)
 }
 
 static void flashPageErase(uint32_t addr)
-{   
+{
     uint8_t i;
-    FLASH_Unlock();  
+    FLASH_Unlock();
     for(i=0; i<10; i++)
     {
-        FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPERR);
+        FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
         if(FLASH_ErasePage(addr) == FLASH_COMPLETE)
         {
             break;
         }
     }
-    
+
     FLASH_Lock();
 }
 
@@ -88,9 +90,9 @@ static void flashWrite(uint32_t addr, uint8_t *buf, uint16_t len)
 	uint8_t num = 0;
 	uint8_t *str = buf;
 	int i,j;
-	
-	FLASH_Unlock();	
-    FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPERR); 
+
+	FLASH_Unlock();
+    FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
 
 	if(buf != 0)
 	{
@@ -104,7 +106,7 @@ static void flashWrite(uint32_t addr, uint8_t *buf, uint16_t len)
 				{
 					case 1:
 					case 2:
-					case 3:		
+					case 3:
 					for(i=num-1 ;i >=0 ;i--)
 					{
 						g_sun |= str[i];
@@ -116,17 +118,17 @@ static void flashWrite(uint32_t addr, uint8_t *buf, uint16_t len)
 						{
 							g_sun = (g_sun << 8*i);
 						}
-					}		
+					}
 						break;
 				}
 			}
-			else 
+			else
 			{
 					for(i = 3; i >= 1; i--)
 					{
 						g_sun |= str[i];
-						g_sun = (g_sun << 8); 
-					}		
+						g_sun = (g_sun << 8);
+					}
 					g_sun |= str[0];
 			}
 			str =str+4;
@@ -135,15 +137,15 @@ static void flashWrite(uint32_t addr, uint8_t *buf, uint16_t len)
 				Address = Address + 4;
 			}
 			else
-			{ 
+			{
 			}
 		}
 	}
-	
+
 	FLASH_Lock();
 }
 
-static int flashRead(uint32_t addr, uint8_t *buf, uint16_t len) 
+static int flashRead(uint32_t addr, uint8_t *buf, uint16_t len)
 {
 	int i = 0;
 	memcpy(buf, (const void *)addr, len);

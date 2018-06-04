@@ -1,5 +1,5 @@
 .\objects\main.o: ..\app\main.c
-.\objects\main.o: ..\app\APP.h
+.\objects\main.o: ..\sys\Sys.h
 .\objects\main.o: ..\hal\HalCtype.h
 .\objects\main.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\main.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
@@ -17,3 +17,10 @@
 .\objects\main.o: ..\lib\inc\stm32f10x_usart.h
 .\objects\main.o: ..\lib\inc\misc.h
 .\objects\main.o: ..\hal\HalConfig.h
+.\objects\main.o: ..\hal\HalCommon.h
+.\objects\main.o: ..\hal\HalGPIO.h
+.\objects\main.o: ..\hal\HalTimer.h
+.\objects\main.o: ..\hal\HalUart.h
+.\objects\main.o: ..\hal\HalSpi.h
+.\objects\main.o: ..\hal\HalWait.h
+.\objects\main.o: ..\hal\HalFlash.h

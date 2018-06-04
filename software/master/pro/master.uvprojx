@@ -365,7 +365,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER, STM32F10X_MD</Define>
               <Undefine></Undefine>
-              <IncludePath>..\hal;..\app;..\lib\inc</IncludePath>
+              <IncludePath>..\hal;..\app;..\lib\inc;..\sys</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -418,6 +418,11 @@
               <FileType>1</FileType>
               <FilePath>..\app\main.c</FilePath>
             </File>
+            <File>
+              <FileName>SysButton.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\app\SysButton.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -457,6 +462,11 @@
               <FileName>CC1101.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\hal\CC1101.c</FilePath>
+            </File>
+            <File>
+              <FileName>HalFlash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\hal\HalFlash.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -507,6 +517,26 @@
               <FileName>stm32f10x_dma.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\lib\src\stm32f10x_dma.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f10x_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lib\src\stm32f10x_flash.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>sys</GroupName>
+          <Files>
+            <File>
+              <FileName>Sys.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\sys\Sys.c</FilePath>
+            </File>
+            <File>
+              <FileName>SysCommand.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\sys\SysCommand.c</FilePath>
             </File>
           </Files>
         </Group>
