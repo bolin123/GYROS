@@ -102,8 +102,8 @@ void HalShutDownEnable(bool enable)
     if(shutdown != enable)
     {
         printf("%s, enable = %d\n", __FUNCTION__, enable);
-        HalGPIOSetLevel(0x1c, enable);
-        HalGPIOSetLevel(0x1d, enable);
+        HalGPIOSetLevel(0x1c, !enable);
+        HalGPIOSetLevel(0x1d, !enable);
         shutdown = enable;
     }
 }
@@ -114,8 +114,8 @@ static void switchIOConfig(void)
     HalGPIOConfig(0x1d, HAL_IO_OUTPUT);
     HalGPIOConfig(0x1e, HAL_IO_OUTPUT);
 
-    HalGPIOSetLevel(0x1c, 0);
-    HalGPIOSetLevel(0x1d, 0);
+    HalGPIOSetLevel(0x1c, 1);
+    HalGPIOSetLevel(0x1d, 1);
     HalGPIOSetLevel(0x1e, 0);
     HalGPIOSetLevel(0x00, 1);
 }
