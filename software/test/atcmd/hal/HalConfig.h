@@ -1,0 +1,8 @@
+#ifndef HAL_CONFIG_H
+#define HAL_CONFIG_H
+
+#define HAL_FLASH_BLOCK_SIZE 1024
+#define HAL_FLASH_ANGLE_ADDR 0x0800FC00 //63k
+
+#endif
+
