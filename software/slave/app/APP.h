@@ -3,6 +3,7 @@
 
 #include "HalCtype.h"
 
+void APPSelfAdjust(void);
 void APPInitialize(void);
 void APPPoll(void);
 

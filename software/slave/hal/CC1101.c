@@ -26,6 +26,9 @@
 #define CC1101_CS_DISABLE() HalGPIOSetLevel(CC1101_CS_PIN, HAL_GPIO_LEVEL_HIGH)
 
 static uint8_t g_buff[128];
+static volatile uint8_t g_buffLen = 0;
+static volatile bool g_gotFrame = false;
+static CC1101Recv_cb g_recvCb = NULL;
 
 static void delay(int nCount)
 {
@@ -165,9 +168,11 @@ void CC1101SendData(uint8_t *data, uint16_t len)
     while(!HalGPIOGetLevel(CC1101_GOD0_PIN));//while (!GDO0);
     // Wait for GDO0 to be cleared -> end of packet
     while(HalGPIOGetLevel(CC1101_GOD0_PIN));// while (GDO0);
-    //  halSpiStrobe(CCxxx0_SFTX);
+    halSpiStrobe(CCxxx0_SFTX);
+    delay(500);
     setRxMode();
 }
+
 
 
 
@@ -242,15 +247,24 @@ static void pinExtiConfig(void)
     EXTI_Init(&EXTI_InitStructure);
 }
 
-void CC1101Initialize(void)
+void CC1101Initialize(CC1101Recv_cb callback)
 {
     chipReset();
     regsConfig();
     pinExtiConfig();
+    g_recvCb = callback;
 }
 
 void CC1101Poll(void)
 {
+    if(g_gotFrame)
+    {
+        if(g_recvCb)
+        {
+            g_recvCb(&g_buff[1], g_buffLen);
+        }
+        g_gotFrame = false;
+    }
 }
 
 
@@ -261,10 +275,11 @@ void EXTI0_IRQHandler(void)  /* Key 4 */
     if(EXTI_GetITStatus(EXTI_Line0) != RESET)
     {
         //SYS_EXIT_CRITICAL(i_state);
-        if(halRfReceivePacket(g_buff, &leng)) // 读数据并判断正确与否
+        if(halRfReceivePacket(g_buff, &g_buffLen)) // 读数据并判断正确与否
         {
             halSpiStrobe(CCxxx0_SIDLE);    //CCxxx0_SIDLE	 0x36 //空闲状态
             halSpiStrobe(CCxxx0_SRX);
+            g_gotFrame = true;
         }
        // SYS_ENTER_CRITICAL(i_state);
         EXTI_ClearITPendingBit(EXTI_Line0);

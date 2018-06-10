@@ -5,7 +5,7 @@
 
 void HalInitialize(void);
 void HalPoll(void);
-
+void HalGyroAdjust(void);
 /**
  *  设置中断使能
  *  @param enable 使能状态
