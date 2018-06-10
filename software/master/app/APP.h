@@ -4,6 +4,7 @@
 #include "HalCtype.h"
 
 void APPDegreeUpdate(void);
+void APPSlaveAjust(void);
 void APPGotPitch(int pitch);
 uint32_t APPTime(void);
 void APPInitialize(void);

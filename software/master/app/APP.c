@@ -1,6 +1,7 @@
 #include "APP.h"
 #include "Sys.h"
 #include "SysButton.h"
+#include "Protocol.h"
 
 #define BUTTON_0_PIN 0x0f
 #define BUTTON_1_PIN 0x13
@@ -82,9 +83,31 @@ void APPGotPitch(int pitch)
     g_lastPitch = realDegree;
 }
 
+static void protocolEventHandle(ProtocolCmd_t cmd, void *args)
+{
+    switch(cmd)
+    {
+        case PROTOCOL_CMD_ACK:
+            break;
+        case PROTOCOL_CMD_DATA:
+            HalGyroDataHandle((uint8_t *)args, 6);
+            break;
+        case PROTOCOL_CMD_SELFCHECK:
+            break;
+        default:
+            break;
+    }
+}
+
 uint32_t APPTime(void)
 {
     return HalRunningTime();
+}
+
+void APPSlaveAjust(void)
+{
+    SysLog("");
+    ProtocolSendData(PROTOCOL_CMD_SELFCHECK, NULL, 0);
 }
 
 void APPDegreeUpdate(void)
@@ -96,6 +119,7 @@ void APPInitialize(void)
 {
     buttonInit();
     APPDegreeUpdate();
+    ProtocolInitialize(protocolEventHandle);
 }
 
 void APPPoll(void)

@@ -153,11 +153,11 @@ uint8_t CC1101ReadID(void)
 
 void CC1101SendData(uint8_t *data, uint16_t len)
 {
-    halSpiStrobe(CCxxx0_SIDLE);
-	while(halSpiReadStatus(CCxxx0_MARCSTATE) != MARC_STATE_IDLE);
+    //halSpiStrobe(CCxxx0_SIDLE);
+	//while(halSpiReadStatus(CCxxx0_MARCSTATE) != MARC_STATE_IDLE);
 
-    halSpiStrobe(CCxxx0_SFRX);
-    halSpiStrobe(CCxxx0_SFTX);
+    //halSpiStrobe(CCxxx0_SFRX);
+    //halSpiStrobe(CCxxx0_SFTX);
 
     halSpiWriteReg(CCxxx0_TXFIFO, len);
     halSpiWriteBurstReg(CCxxx0_TXFIFO, data, len);
@@ -167,7 +167,8 @@ void CC1101SendData(uint8_t *data, uint16_t len)
     while(!HalGPIOGetLevel(CC1101_GOD0_PIN));//while (!GDO0);
     // Wait for GDO0 to be cleared -> end of packet
     while(HalGPIOGetLevel(CC1101_GOD0_PIN));// while (GDO0);
-    //  halSpiStrobe(CCxxx0_SFTX);
+    halSpiStrobe(CCxxx0_SFTX);
+    delay(1000);
     setRxMode();
 }
 

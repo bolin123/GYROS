@@ -13,6 +13,7 @@ void HalInitialize(void);
 void HalPoll(void);
 void HalWarningEnable(bool enable);
 void HalShutDownEnable(bool enable);
+void HalGyroDataHandle(uint8_t *data, uint16_t len);
 
 /**
  *  设置中断使能

@@ -43,6 +43,7 @@ static void debugUartInit(void)
     HalUartConfig(HAL_DEBUG_UART_PORT, &uartConfig);
 }
 
+
 void HalTimerPast1ms(void)
 {
     g_timerCount++;
@@ -121,7 +122,7 @@ static void switchIOConfig(void)
 }
 
 extern void APPGotPitch(int pitch);
-static void cc1101DataHandle(uint8_t *data, uint16_t len)
+void HalGyroDataHandle(uint8_t *data, uint16_t len)
 {
     uint8_t euler[6];
     int16_t yaw, pitch, roll;
@@ -130,9 +131,9 @@ static void cc1101DataHandle(uint8_t *data, uint16_t len)
     HalGPIOSetLevel(0x01, !HalGPIOGetLevel(0x01));
     memcpy(euler, data, sizeof(euler));
 
-    yaw = (data[0] << 8) + data[1];
-    pitch = (data[2] << 8) + data[3];
-    roll = (data[4] << 8) + data[5];
+    yaw = (data[1] << 8) + data[0];
+    pitch = (data[3] << 8) + data[2];
+    roll = (data[5] << 8) + data[4];
 
     APPGotPitch(abs(pitch));
 #if 0
@@ -157,6 +158,7 @@ static void ledConfig(void)
     HalGPIOSetLevel(0x01, 1);
 }
 
+extern void ProtocolDataRecv(uint8_t *data, uint8_t len);
 void HalInitialize(void)
 {
 	periphClockInit();
@@ -168,7 +170,7 @@ void HalInitialize(void)
     //HalIwdtInitialize();
     switchIOConfig();
     printf("CC1101Initialize\n");
-    CC1101Initialize(cc1101DataHandle);
+    CC1101Initialize(ProtocolDataRecv);
     ledConfig();
 
     printf("cc1101 id = %d\n", CC1101ReadID());

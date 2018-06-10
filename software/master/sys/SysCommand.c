@@ -1,8 +1,7 @@
 #include "SysCommand.h"
-
+#include "APP.h"
 static uint8_t g_buff[64];
 
-extern void APPDegreeUpdate(void);
 
 //warning=5,shutdown=10
 void SysCommandDataRecv(uint8_t *data, uint16_t len)
@@ -42,6 +41,10 @@ void SysCommandDataRecv(uint8_t *data, uint16_t len)
                 }
                 SysDegreeArgSave(warning, shutdown);
                 APPDegreeUpdate();
+            }
+            else if(strstr((char *)g_buff, "selfAjust"))
+            {
+                APPSlaveAjust();
             }
 
             dcount = 0;
