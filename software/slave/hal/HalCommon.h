@@ -2,6 +2,11 @@
 #define HAL_H
 
 #include "HalCtype.h"
+#include "HalGPIO.h"
+#include "HalTimer.h"
+#include "HalUart.h"
+#include "HalSpi.h"
+#include "HalWait.h"
 
 void HalInitialize(void);
 void HalPoll(void);

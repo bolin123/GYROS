@@ -42,7 +42,7 @@ void SysCommandDataRecv(uint8_t *data, uint16_t len)
                 SysDegreeArgSave(warning, shutdown);
                 APPDegreeUpdate();
             }
-            else if(strstr((char *)g_buff, "selfAjust"))
+            else if(strstr((char *)g_buff, "selfAdjust"))
             {
                 APPSlaveAjust();
             }

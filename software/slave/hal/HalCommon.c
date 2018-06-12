@@ -1,9 +1,4 @@
 #include "HalCommon.h"
-#include "HalGPIO.h"
-#include "HalTimer.h"
-#include "HalUart.h"
-#include "HalSpi.h"
-#include "HalWait.h"
 #include "CC1101.h"
 #include "Protocol.h"
 
@@ -211,7 +206,7 @@ static void testReadGyro(void)
         y = yaw / 100.0;
         p = pitch / 100.0;
         r = roll /100.0;
-        
+
 #endif
         HalInterruptsSetEnable(true);
         //printf("yaw=%0.1f, pitch=%0.1f, roll=%0.1f\n", y, p, r);

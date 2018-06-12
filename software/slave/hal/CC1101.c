@@ -1,7 +1,8 @@
 #include "CC1101.h"
 #include "CC1101Regs.h"
-#include "HalSpi.h"
-#include "HalGPIO.h"
+#include "HalCommon.h"
+//#include "HalSpi.h"
+//#include "HalGPIO.h"
 #include "stm32f10x_exti.h"
 
 #define WRITE_BURST     	0x40						//连续写入
@@ -14,7 +15,6 @@
 #define MARC_STATE_RX                     0x0D
 #define MARC_STATE_TX                     0x13
 
-
 #define CC1101_CS_PIN  0x04
 #define CC1101_CLK_PIN 0x05
 #define CC1101_MI_PIN  0x06
@@ -24,6 +24,13 @@
 
 #define CC1101_CS_ENABLE() HalGPIOSetLevel(CC1101_CS_PIN, HAL_GPIO_LEVEL_LOW)
 #define CC1101_CS_DISABLE() HalGPIOSetLevel(CC1101_CS_PIN, HAL_GPIO_LEVEL_HIGH)
+
+enum {
+  RADIOMODE_RX = 1,
+  RADIOMODE_TX,
+  RADIOMODE_IDLE,
+};
+
 
 static uint8_t g_buff[128];
 static volatile uint8_t g_buffLen = 0;
@@ -123,7 +130,7 @@ static uint8_t halRfReceivePacket(uint8_t *rxBuffer, uint8_t *length)
 	{
         packetLength = halSpiReadReg(CCxxx0_RXFIFO);
         rxBuffer[0] = packetLength;//读出第一个字节，此字节为该帧数据长度
-        if(packetLength <= *length)
+        if(packetLength <= sizeof(g_buff))
         {
             halSpiReadBurstReg(CCxxx0_RXFIFO, rxBuffer+1, packetLength+2);
             *length = packetLength;
@@ -152,10 +159,71 @@ uint8_t CC1101ReadID(void)
 	return id;
 }
 
+static void phy_delay(int ms)
+{
+	int i,j;
+	for(i=ms; i>0; i--)
+		for(j=0; j<8000; j++);
+}
+
+static uint8_t _radio_set_mode(uint8_t mode)
+{
+	uint8_t res = 0, i;
+	uint8_t MARCSTATE = 0;
+//	uint32_t time;
+
+	//OS_ENTER_CRITICAL(istate);
+	MARCSTATE = halSpiReadStatus(CCxxx0_MARCSTATE);
+
+	if(MARCSTATE != MARC_STATE_RX \
+		|| MARCSTATE != MARC_STATE_TX \
+		|| MARCSTATE != MARC_STATE_IDLE)
+	{
+	//SIDLE();
+		halSpiStrobe(CCxxx0_SIDLE);
+	}
+
+	switch(mode)
+	{
+	case RADIOMODE_RX:
+		while((halSpiReadStatus(CCxxx0_MARCSTATE)) != MARC_STATE_RX)
+		{
+			halSpiStrobe(CCxxx0_SIDLE);
+			halSpiStrobe(CCxxx0_SRX);
+			phy_delay(2);
+			if(i>=100)
+				break;
+			i++;
+		}
+		res=1;
+
+	break;
+	case RADIOMODE_TX:
+		//STX();
+		halSpiStrobe(CCxxx0_SIDLE);
+		halSpiStrobe(CCxxx0_STX);
+		if((halSpiReadStatus(CCxxx0_MARCSTATE)) == MARC_STATE_TX)
+		{
+		res = 1;
+		}
+	break;
+	default:
+		if((halSpiReadStatus(CCxxx0_MARCSTATE)) == MARC_STATE_IDLE)
+	break;
+	//SIDLE();
+	//halSpiStrobe(CCxxx0_SIDLE);
+	}
+  //OS_EXIT_CRITICAL(istate);
+  return res;
+}
+
+
 void CC1101SendData(uint8_t *data, uint16_t len)
 {
+    HalInterruptsSetEnable(false);
+
     halSpiStrobe(CCxxx0_SIDLE);
-    while(halSpiReadStatus(CCxxx0_MARCSTATE) != MARC_STATE_IDLE);
+	while(halSpiReadStatus(CCxxx0_MARCSTATE) != MARC_STATE_IDLE);
 
     halSpiStrobe(CCxxx0_SFRX);
     halSpiStrobe(CCxxx0_SFTX);
@@ -168,12 +236,11 @@ void CC1101SendData(uint8_t *data, uint16_t len)
     while(!HalGPIOGetLevel(CC1101_GOD0_PIN));//while (!GDO0);
     // Wait for GDO0 to be cleared -> end of packet
     while(HalGPIOGetLevel(CC1101_GOD0_PIN));// while (GDO0);
-    halSpiStrobe(CCxxx0_SFTX);
-    delay(500);
-    setRxMode();
+    //halSpiStrobe(CCxxx0_SFTX);
+
+    HalInterruptsSetEnable(true);
+	_radio_set_mode(RADIOMODE_RX);
 }
-
-
 
 
 static void chipReset(void)
@@ -252,6 +319,7 @@ void CC1101Initialize(CC1101Recv_cb callback)
     chipReset();
     regsConfig();
     pinExtiConfig();
+
     g_recvCb = callback;
 }
 
@@ -270,8 +338,6 @@ void CC1101Poll(void)
 
 void EXTI0_IRQHandler(void)  /* Key 4 */
 {
-    uint8_t leng = 64;
-
     if(EXTI_GetITStatus(EXTI_Line0) != RESET)
     {
         //SYS_EXIT_CRITICAL(i_state);

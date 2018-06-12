@@ -1,7 +1,8 @@
 #include "CC1101.h"
 #include "CC1101Regs.h"
-#include "HalSpi.h"
-#include "HalGPIO.h"
+#include "HalCommon.h"
+//#include "HalSpi.h"
+//#include "HalGPIO.h"
 #include "stm32f10x_exti.h"
 
 #define WRITE_BURST     	0x40						//Á¬ÐøÐ´Èë
@@ -23,6 +24,13 @@
 
 #define CC1101_CS_ENABLE() HalGPIOSetLevel(CC1101_CS_PIN, HAL_GPIO_LEVEL_LOW)
 #define CC1101_CS_DISABLE() HalGPIOSetLevel(CC1101_CS_PIN, HAL_GPIO_LEVEL_HIGH)
+
+enum {
+  RADIOMODE_RX = 1,
+  RADIOMODE_TX,
+  RADIOMODE_IDLE,
+};
+
 
 static uint8_t g_buff[128];
 static volatile uint8_t g_buffLen = 0;
@@ -151,13 +159,74 @@ uint8_t CC1101ReadID(void)
 	return id;
 }
 
+static void phy_delay(int ms)
+{
+	int i,j;
+	for(i=ms; i>0; i--)
+		for(j=0; j<8000; j++);
+}
+
+static uint8_t _radio_set_mode(uint8_t mode)
+{
+	uint8_t res = 0, i;
+	uint8_t MARCSTATE = 0;
+//	uint32_t time;
+
+	//OS_ENTER_CRITICAL(istate);
+	MARCSTATE = halSpiReadStatus(CCxxx0_MARCSTATE);
+
+	if(MARCSTATE != MARC_STATE_RX \
+		|| MARCSTATE != MARC_STATE_TX \
+		|| MARCSTATE != MARC_STATE_IDLE)
+	{
+	//SIDLE();
+		halSpiStrobe(CCxxx0_SIDLE);
+	}
+
+	switch(mode)
+	{
+	case RADIOMODE_RX:
+		while((halSpiReadStatus(CCxxx0_MARCSTATE)) != MARC_STATE_RX)
+		{
+			halSpiStrobe(CCxxx0_SIDLE);
+			halSpiStrobe(CCxxx0_SRX);
+			phy_delay(2);
+			if(i>=100)
+				break;
+			i++;
+		}
+		res=1;
+
+	break;
+	case RADIOMODE_TX:
+		//STX();
+		halSpiStrobe(CCxxx0_SIDLE);
+		halSpiStrobe(CCxxx0_STX);
+		if((halSpiReadStatus(CCxxx0_MARCSTATE)) == MARC_STATE_TX)
+		{
+		res = 1;
+		}
+	break;
+	default:
+		if((halSpiReadStatus(CCxxx0_MARCSTATE)) == MARC_STATE_IDLE)
+	break;
+	//SIDLE();
+	//halSpiStrobe(CCxxx0_SIDLE);
+	}
+  //OS_EXIT_CRITICAL(istate);
+  return res;
+}
+
+
 void CC1101SendData(uint8_t *data, uint16_t len)
 {
-    //halSpiStrobe(CCxxx0_SIDLE);
-	//while(halSpiReadStatus(CCxxx0_MARCSTATE) != MARC_STATE_IDLE);
+    HalInterruptsSetEnable(false);
 
-    //halSpiStrobe(CCxxx0_SFRX);
-    //halSpiStrobe(CCxxx0_SFTX);
+    halSpiStrobe(CCxxx0_SIDLE);
+	while(halSpiReadStatus(CCxxx0_MARCSTATE) != MARC_STATE_IDLE);
+
+    halSpiStrobe(CCxxx0_SFRX);
+    halSpiStrobe(CCxxx0_SFTX);
 
     halSpiWriteReg(CCxxx0_TXFIFO, len);
     halSpiWriteBurstReg(CCxxx0_TXFIFO, data, len);
@@ -167,9 +236,10 @@ void CC1101SendData(uint8_t *data, uint16_t len)
     while(!HalGPIOGetLevel(CC1101_GOD0_PIN));//while (!GDO0);
     // Wait for GDO0 to be cleared -> end of packet
     while(HalGPIOGetLevel(CC1101_GOD0_PIN));// while (GDO0);
-    halSpiStrobe(CCxxx0_SFTX);
-    delay(1000);
-    setRxMode();
+    //halSpiStrobe(CCxxx0_SFTX);
+
+    HalInterruptsSetEnable(true);
+	_radio_set_mode(RADIOMODE_RX);
 }
 
 

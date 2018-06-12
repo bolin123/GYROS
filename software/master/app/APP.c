@@ -69,7 +69,7 @@ static void buttonInit(void)
 
 void APPGotPitch(int pitch)
 {
-    int realDegree = 9000 - pitch;
+    int realDegree = pitch;
 
     if(realDegree > g_degree[0] * 100) //warning
     {
@@ -104,10 +104,25 @@ uint32_t APPTime(void)
     return HalRunningTime();
 }
 
+static uint8_t g_adjustCount = 0;
+static void adjustSendPoll(void)
+{
+    static uint32_t lastSendTime = 0;
+
+    if(g_adjustCount && (APPTime() - lastSendTime) > 200)
+    {
+        SysPrintf("SELFCHECK\n");
+        ProtocolSendData(PROTOCOL_CMD_SELFCHECK, NULL, 0);
+        lastSendTime = APPTime();
+        g_adjustCount--;
+    }
+}
+
 void APPSlaveAjust(void)
 {
     SysLog("");
-    ProtocolSendData(PROTOCOL_CMD_SELFCHECK, NULL, 0);
+    //ProtocolSendData(PROTOCOL_CMD_SELFCHECK, NULL, 0);
+    g_adjustCount = 5;
 }
 
 void APPDegreeUpdate(void)
@@ -125,5 +140,6 @@ void APPInitialize(void)
 void APPPoll(void)
 {
     SysButtonPoll();
+    adjustSendPoll();
 }
 

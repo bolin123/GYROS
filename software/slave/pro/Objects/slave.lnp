@@ -1,6 +1,7 @@
 --cpu Cortex-M3
 ".\objects\app.o"
 ".\objects\main.o"
+".\objects\protocol.o"
 ".\objects\cc1101.o"
 ".\objects\halcommon.o"
 ".\objects\halgpio.o"
@@ -8,7 +9,6 @@
 ".\objects\haltimer.o"
 ".\objects\haluart.o"
 ".\objects\halwait.o"
-".\objects\mpu6500.o"
 ".\objects\misc.o"
 ".\objects\stm32f10x_exti.o"
 ".\objects\stm32f10x_gpio.o"

@@ -25,3 +25,4 @@
 .\objects\syscommand.o: ..\hal\HalSpi.h
 .\objects\syscommand.o: ..\hal\HalWait.h
 .\objects\syscommand.o: ..\hal\HalFlash.h
+.\objects\syscommand.o: ..\app\APP.h

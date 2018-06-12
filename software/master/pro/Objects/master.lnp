@@ -2,6 +2,7 @@
 ".\objects\app.o"
 ".\objects\main.o"
 ".\objects\sysbutton.o"
+".\objects\protocol.o"
 ".\objects\halcommon.o"
 ".\objects\halgpio.o"
 ".\objects\halspi.o"

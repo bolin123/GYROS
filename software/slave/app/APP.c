@@ -3,7 +3,13 @@
 
 void APPSelfAdjust(void)
 {
-    HalGyroAdjust();
+    static uint32_t lastTime = 0;
+
+    if(HalRunningTime() - lastTime > 3000)
+    {
+        HalGyroAdjust();
+        lastTime = HalRunningTime();
+    }
 }
 
 void APPInitialize(void)

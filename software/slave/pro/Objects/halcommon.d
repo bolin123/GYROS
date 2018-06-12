@@ -23,4 +23,4 @@
 .\objects\halcommon.o: ..\hal\HalSpi.h
 .\objects\halcommon.o: ..\hal\HalWait.h
 .\objects\halcommon.o: ..\hal\CC1101.h
-.\objects\halcommon.o: ..\hal\MPU6500.h
+.\objects\halcommon.o: ..\app\Protocol.h

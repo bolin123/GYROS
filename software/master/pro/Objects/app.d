@@ -26,3 +26,4 @@
 .\objects\app.o: ..\hal\HalWait.h
 .\objects\app.o: ..\hal\HalFlash.h
 .\objects\app.o: ..\app\SysButton.h
+.\objects\app.o: ..\app\Protocol.h

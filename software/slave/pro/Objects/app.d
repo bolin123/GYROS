@@ -18,3 +18,8 @@
 .\objects\app.o: ..\lib\inc\misc.h
 .\objects\app.o: ..\hal\HalConfig.h
 .\objects\app.o: ..\hal\HalCommon.h
+.\objects\app.o: ..\hal\HalGPIO.h
+.\objects\app.o: ..\hal\HalTimer.h
+.\objects\app.o: ..\hal\HalUart.h
+.\objects\app.o: ..\hal\HalSpi.h
+.\objects\app.o: ..\hal\HalWait.h

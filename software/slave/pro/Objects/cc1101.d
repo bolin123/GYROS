@@ -18,6 +18,10 @@
 .\objects\cc1101.o: ..\lib\inc\misc.h
 .\objects\cc1101.o: ..\hal\HalConfig.h
 .\objects\cc1101.o: ..\hal\CC1101Regs.h
-.\objects\cc1101.o: ..\hal\HalSpi.h
+.\objects\cc1101.o: ..\hal\HalCommon.h
 .\objects\cc1101.o: ..\hal\HalGPIO.h
+.\objects\cc1101.o: ..\hal\HalTimer.h
+.\objects\cc1101.o: ..\hal\HalUart.h
+.\objects\cc1101.o: ..\hal\HalSpi.h
+.\objects\cc1101.o: ..\hal\HalWait.h
 .\objects\cc1101.o: ..\lib\inc\stm32f10x_exti.h
